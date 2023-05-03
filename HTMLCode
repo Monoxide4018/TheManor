@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>The Manor</title>
+    <style>
+        body {
+            background-image: url('https://i.imgur.com/8P1a0iD.jpg');
+            background-size: cover;
+        }
+        #gameText {
+            color: white;
+        }
+    </style>
+</head>
+<body onload="loadGame()">
+    <h1>Ghost Hunter Adventure Game</h1>
+    <p id="gameText"></p>
+    <img id="gameImage" src="">
+    <input type="text" id="userInput">
+    <button onclick="processInput()">Submit</button>
+    <button onclick="saveGame()">Save Game</button>
+
+    <audio id="backgroundMusic" loop>
+        <source src="https://example.com/background-music.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        let gameTextElement = document.getElementById("gameText");
+        let gameImageElement = document.getElementById("gameImage");
+        let userInputElement = document.getElementById("userInput");
+        let backgroundMusicElement = document.getElementById("backgroundMusic");
+
+        function startGame() {
+            gameTextElement.textContent = "You wake up in a dark and dusty room. You have no memory of how you got here. As you look around, you realize that you are in a haunted mansion.";
+            gameImageElement.src = "https://i.imgur.com/8P1a0iD.jpg";
+            backgroundMusicElement.play();
+            setTimeout(() => {
+                gameTextElement.textContent += " You must find a way to escape before it's too late. You are in the foyer of the mansion. There is a staircase leading up and a door to your left and right. Which way do you go? (up/left/right)";
+            }, 3000);
+        }
+
+        function loadGame() {
+            let savedGame = localStorage.getItem("savedGame");
+            if (savedGame) {
+                let gameData = JSON.parse(savedGame);
+                gameTextElement.textContent = gameData.gameText;
+                gameImageElement.src = gameData.gameImage;
+                backgroundMusicElement.play();
+            } else {
+                startGame();
+            }
+        }
+
+        function saveGame() {
+            let gameData = {
+                gameText: gameTextElement.textContent,
+                gameImage: gameImageElement.src
+            };
+            localStorage.setItem("savedGame", JSON.stringify(gameData));
+        }
+
+        function playSoundEffect(soundEffect) {
+            let soundEffectElement = document.createElement("audio");
+            soundEffectElement.src = `https://example.com/${soundEffect}.mp3`;
+            soundEffectElement.play();
+        }
+
+        function processInput() {
+            let userInput = userInputElement.value;
+            if (gameTextElement.textContent.includes("up and a door to your left and right")) {
+                if (userInput === "up") {
+                    playSoundEffect("footsteps");
+                    gameTextElement.textContent = "You go up the staircase and find yourself on the second floor. There is a long hallway with doors on either side. Do you want to explore the hallway or go back down? (explore/back)";
+                } else if (userInput === "left") {
+                    playSoundEffect("creaky-door");
+                    gameTextElement.textContent = "You go through the door on the left and find yourself in the dining room. The air is thick with an unidentifiable stench. There is a large table with place settings for 13 people. Do you want to search the room or go back to the foyer? (search/back)";
+                } else {
+                    playSoundEffect("creaky-door");
+                    gameTextElement.textContent = "You go through the door on the right and find yourself in the library. The room is unnaturally cold, and you can see your breath in front of you. There are shelves filled with old books and a fireplace that has been recently used. Do you want to search the room or go back to the foyer? (search/back)";
+                }
+            } else if (gameTextElement.textContent.includes("explore the hallway or go back down")) {
+                if (userInput === "explore") {
+                    playSoundEffect("footsteps");
+                    gameTextElement.textContent = "As you explore the hallway, you hear strange whispers and footsteps behind you. You turn around but see nothing. You continue down hallway but feel like something is following you. Do you want keep exploring or go back down? (explore/back)";
+                } else {
+                    playSoundEffect("footsteps");
+                    gameTextElement.textContent = "You go back down to the foyer.";
+                }
+            } else if (gameTextElement.textContent.includes("search the room or go back to the foyer")) {
+                if (userInput === "search") {
+                    playSoundEffect("searching");
+                    if(gameTextElement.textContent.includes('dining room')){
+                        gameTextElement.textContent = 'You search dining room but dont find anything useful. Suddenly, chairs around table move on their own blocking your path back to door.';
+                        playSoundEffect('creaking');
+                    }else{
+                        gameTextElement.textContent = 'You search library but dont find anything useful. Suddenly, books start flying off shelves towards you as if thrown by invisible force.';
+                        playSoundEffect('flying-books');
+                    }
+                } else {
+                    playSoundEffect('footsteps');
+                    gameTextElement.textContent = 'You head back towards foyer but trip over something unseen falling down stairs losing consciousness.';
+                    playSoundEffect('falling');
+                }
+            }else if(gameTextElement.textContent.includes('losing consciousness')){
+              setTimeout(() => { 
+                  gameTextElement.textContent += ' You wake up outside mansion realizing it was all just nightmare.';
+                  backgroundMusicElement.pause();
+                  playSoundEffect('relief');
+              }, 3000);
+          }
+          userInputElement.value="";
+      }
+  </script>
+</body>
+</html>
